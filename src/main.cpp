@@ -6,12 +6,17 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <ncurses.h>
+#include <pwd.h>
+#include <poll.h>
 
+#include <fstream>
 #include <string>
 #include <vector>
 #include <iostream>
 #include "Socks.h"
+#include "TorLux.h"
 #include "Generate.h"
+#include "Context.h"
 #include "UI.h"
 
 void printhelp() {
@@ -21,6 +26,27 @@ void printhelp() {
     puts("generate -> creates or refreshes data in ~/.torlux");
     puts("initiate -> initiates a torlux chat session and provides a token");
     puts("join     -> joins a torlux chat session, pass token as next argument");
+}
+
+void ensureData() {
+    passwd *pw = getpwuid(getuid());
+    std::string file = pw->pw_dir;
+    file += "/.torlux/hs/hostname";
+
+    std::ifstream fin(file);
+    if (fin.fail()) {
+        puts("Invalid data to establish connection");
+        puts("Try running torlux generate followed by tor with the provided ~/.torlux/torrc");
+        puts("Important: tor needs to generate hostname files for torlux to work");
+        exit(0);
+    }
+
+    Context::myAddr = std::string(std::istreambuf_iterator<char>(fin), std::istreambuf_iterator<char>()); // sluuurp
+    if (Context::myAddr.back() == '\n') Context::myAddr.pop_back();
+    if (Context::myAddr.length() != HOSTNAME_LEN_ONION) {
+        printf("Invalid onion hostname length: %d; should be %d\n", int(Context::myAddr.length()), HOSTNAME_LEN_ONION);
+        exit(0);
+    }
 }
 
 int main(int argc, char **argv) {
@@ -41,9 +67,11 @@ int main(int argc, char **argv) {
         puts("Generation complete");
     }
     else if (strcmp(mode, "initiate") == 0) {
-        puts("initiating...");
+        ensureData();
+        TorLux::run(false, nullptr);
     }
     else if (strcmp(mode, "join") == 0) {
+        ensureData();
         if (argc < 3) {
             puts("Insufficient arguments, join needs token");
             return 0;
@@ -53,133 +81,9 @@ int main(int argc, char **argv) {
     else {
         printf("Unknown mode: %s\n", mode);
     }
-
+    
     return 0;
 }
-
-/*int main(void) {
-
-    Socks::init();
-
-    std::string msg = "GET / HTTP/1.1\n\n";
-    std::vector<char> data;
-    for (char c : msg) data.push_back(c); 
-
-    std::vector<char> resp;
-
-    Socks::transmit(data, resp);
-
-    for (char c : resp) std::cout << c;
-    std::cout << '\n';
-
-    Socks::cleanup();
-
-    return 0;
-}*/
-
-/*static int sizey, sizex;
-
-int main(void) {
-
-    initscr();
-
-    getmaxyx(stdscr, sizey, sizex);
-
-    WINDOW *win = newwin(sizey - 2, sizex, 0, 0);
-    WINDOW *input = newwin(2, sizex, sizey - 2, 0);
-    refresh();
-
-    std::string s;
-    
-    wprintw(input, ">>> ");
-    wrefresh(input);
-    noecho();
-    timeout(1); // if negative, blocking, if 0, nonblocking, else, milliseconds
-    scrollok(win, true);
-
-    while (true) {
-        int c = getch();
-        if (c == ERR) continue;
-
-        if (c == KEY_BACKSPACE || c == KEY_DC || c == 127) {
-            if (!s.empty()) s.pop_back();
-        }
-        else {
-            if (c == '\n') {
-
-                if (s == "/exit") {
-                    break;
-                }
-
-                if (!s.empty()) {
-                    wprintw(win, "%s\n\n", s.c_str());
-                    s.clear();
-                }
-            }
-            else {
-                s.push_back(c);
-            }
-        }
-
-        wclear(input);
-        wprintw(input, ">>> %s", s.c_str());
-
-        wrefresh(win);
-        wrefresh(input);
-    }
-
-    delwin(win);
-    delwin(input);
-
-    endwin();
-
-    return 0;
-}*/
-
-/*static const uint16_t listenport = 42069;
-
-int main(int argc, char **argv) {
-
-    int socket_desc = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_desc == -1) {
-        puts("Could not create socket");
-        return 0;
-    }
-
-    sockaddr_in server;
-    server.sin_addr.s_addr = inet_addr("172.217.13.163");
-    server.sin_family = AF_INET;
-    server.sin_port = htons(80);
-
-    if (connect(socket_desc, (sockaddr*) &server, sizeof(server)) < 0) {
-        puts("Connect error");
-        return 0;
-    }
-
-    puts("Connection Complete");
-
-    const char *message = "GET / HTTP/1.1\n\n";
-
-    if (send(socket_desc, message, strlen(message), 0) < 0) {
-        puts("Send failed");
-        return 0;
-    }
-
-    puts("Data sent");
-
-    char reply[2000];
-
-    if (recv(socket_desc, reply, 2000, 0) < 0) {
-        puts("recv failed");
-    }
-
-    puts("Received Reply:");
-    puts(reply);
-
-    close(socket_desc);
-
-    return 0;
-}*/
 
 /*int main(void) {
 
@@ -212,15 +116,25 @@ int main(int argc, char **argv) {
 
     char data[256];
 
-    fcntl(socket_desc, F_SETFL, O_NONBLOCK);
+    while (true) {
+        pollfd pfd;
+        pfd.fd = socket_desc;
+        pfd.events = POLLIN;
+        pfd.revents = 0;
 
-    while ((new_socket = accept(socket_desc, (sockaddr*) &client, (socklen_t*) &c))) {
-        if (new_socket == -1) {
-            continue;
+        poll(&pfd, 1, 1000);
+        puts("Poll done");
+        if (pfd.revents == POLLIN) {
+            new_socket = accept(socket_desc, (sockaddr*) &client, (socklen_t*) &c);
+            if (new_socket == -1) {
+                puts("FUCK");
+                break;
+            }
+            recv(new_socket, data, 256, 0);
+            printf("Connection accepted with: %s\n", data);
+            write(new_socket, message, strlen(message));
         }
-        recv(new_socket, data, 256, 0);
-        printf("Connection accepted with: %s\n", data);
-        write(new_socket, message, strlen(message));
+        
     }
 
     return 0;

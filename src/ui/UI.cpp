@@ -1,5 +1,6 @@
 #include "UI.h"
 
+#include "TorLux.h"
 #include <ncurses.h>
 #include <string>
 
@@ -25,8 +26,19 @@ void UI::init() {
 }
 
 bool UI::update() {
+
+    pthread_mutex_lock(&TorLux::chatMutex);
+    for (auto &a : TorLux::chatBuffer) {
+        wprintw(chat, "%s\n\n", a.c_str());
+    }
+    TorLux::chatBuffer.clear();
+    pthread_mutex_unlock(&TorLux::chatMutex);
+
     int c = getch();
-    if (c == ERR) return true;
+    if (c == ERR) {
+        wrefresh(chat); // for ^
+        return true;
+    }
 
     if (c == KEY_BACKSPACE || c == KEY_DC || c == 127) {
         if (!s.empty()) s.pop_back();

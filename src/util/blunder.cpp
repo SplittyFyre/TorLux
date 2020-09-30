@@ -1,12 +1,15 @@
 #include "blunder.h"
 
+#include "Socks.h"
+#include "UI.h"
+
 #include <cstdio>
 #include <cstdarg>
 #include <cstdlib>
 
 void die(const char *fmt, ...) {
-
-
+    Socks::cleanup();
+    UI::cleanup();
 
     puts("Program died badly:");
 

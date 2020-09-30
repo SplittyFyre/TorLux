@@ -3,16 +3,8 @@
 #include <string>
 
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <pwd.h>
-
-bool Generate::verify() {
-    passwd *pw = getpwuid(getuid());
-    std::string file = pw->pw_dir;
-    file += "/.torlux/hs/hostname";
-    return (access(file.c_str(), F_OK) != -1);
-}
 
 void Generate::generate() {
     passwd *pw = getpwuid(getuid());

@@ -47,7 +47,6 @@ void Socks::init() {
 }
 
 void Socks::transmit(const std::vector<char> &data, std::vector<char> &resp) {
-
     char request[4 + 1 + 62 + 2];
     request[0] = 0x05; // SOCKS5
     request[1] = 0x01; // connect
@@ -62,7 +61,7 @@ void Socks::transmit(const std::vector<char> &data, std::vector<char> &resp) {
         puts("Failed to transmit SOCKS5 request");
         exit(1);
     }
-
+    
     char requestResp[10];
     if (recv(sockfd, requestResp, 10, 0) == -1) {
         puts("Failed to receive SOCKS5 response to request");

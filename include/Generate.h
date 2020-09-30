@@ -2,7 +2,6 @@
 #define INCLUDE_GENERATE
 
 namespace Generate {
-    bool verify();
     void generate();
 };
 

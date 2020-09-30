@@ -1,1 +1,1 @@
-obj/UI.o: src/ui/UI.cpp include/UI.h
+obj/UI.o: src/ui/UI.cpp include/UI.h include/TorLux.h
