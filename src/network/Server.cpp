@@ -109,14 +109,16 @@ void Server::waitForConnection() {
             if (recved == 32 + 32 + HOSTNAME_LEN) {
                 bool flag = true;
                 for (int i = 0; i < 32; i++) {
-                    if (buf[i] != TorLux::initcode[i]) {
+                    if (uint8_t(buf[i]) != TorLux::initcode[i]) {
+                        puts("bad init code");
+                        printf("%d != %d\n", buf[i], TorLux::initcode[i]);
                         flag = false; break;
                     }
                 }
 
                 if (flag) {
                     for (int i = 32; i < 64; i++) {
-                        TorLux::chatcode[i - 32] = buf[i];
+                        TorLux::chatcode[i - 32] = uint8_t(buf[i]);
                     }
 
                     for (int i = 64; i < recved; i++) {
@@ -124,6 +126,7 @@ void Server::waitForConnection() {
                     }
                     Context::targetAddr += ".onion";
                     good = true;
+                    puts("good = true");
                 }
             }
 
@@ -135,6 +138,7 @@ void Server::waitForConnection() {
 
             close(tmpfd);
 
+            puts("should break now");
             if (good) break;
         }
     }

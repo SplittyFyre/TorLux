@@ -31,7 +31,7 @@ obj/Server.o: src/network/Server.cpp include/Server.h include/TorLux.h \
  include/Context.h include/blunder.h
 
 	g++ -std=c++17 -O0 -pthread -MMD -Wall -c -I"include" -I"headers" src/network/Server.cpp -o obj/Server.o
-obj/UI.o: src/ui/UI.cpp include/UI.h include/TorLux.h
+obj/UI.o: src/ui/UI.cpp include/UI.h include/Sender.h include/TorLux.h
 
 	g++ -std=c++17 -O0 -pthread -MMD -Wall -c -I"include" -I"headers" src/ui/UI.cpp -o obj/UI.o
 bin/torlux: obj/main.o obj/blunder.o obj/Generate.o obj/TorLux.o obj/Context.o obj/Sender.o obj/Socks.o obj/Server.o obj/UI.o

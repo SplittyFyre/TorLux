@@ -1,5 +1,6 @@
 #include "UI.h"
 
+#include "Sender.h"
 #include "TorLux.h"
 #include <ncurses.h>
 #include <string>
@@ -51,6 +52,12 @@ bool UI::update() {
             }
 
             if (!s.empty()) {
+
+                pthread_mutex_lock(&Sender::mutex);
+                Sender::toSend.push_back(s);
+                pthread_cond_signal(&Sender::cond);
+                pthread_mutex_unlock(&Sender::mutex);
+
                 wprintw(chat, "%s\n\n", s.c_str());
                 s.clear();
             }
