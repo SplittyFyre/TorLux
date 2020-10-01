@@ -19,6 +19,8 @@ public:
     
     static pthread_mutex_t chatMutex;
     static std::vector<std::string> chatBuffer;
+
+    static pthread_t senderThread, serverThread;
 private:
     static void parseToken(const char *token);
     static void initiate();

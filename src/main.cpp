@@ -14,6 +14,7 @@
 #include <vector>
 #include <iostream>
 #include "Socks.h"
+#include "Sender.h"
 #include "TorLux.h"
 #include "Generate.h"
 #include "Context.h"
@@ -40,7 +41,7 @@ void ensureData() {
         puts("Important: tor needs to generate hostname files for torlux to work");
         exit(0);
     }
-
+    
     Context::myAddr = std::string(std::istreambuf_iterator<char>(fin), std::istreambuf_iterator<char>()); // sluuurp
     while (Context::myAddr.back() == '\n') Context::myAddr.pop_back();
     if (Context::myAddr.length() != HOSTNAME_LEN_ONION) {
@@ -76,7 +77,7 @@ int main(int argc, char **argv) {
             puts("Insufficient arguments, join needs token");
             return 0;
         }
-        puts("joining...");
+        TorLux::run(true, argv[2]);
     }
     else {
         printf("Unknown mode: %s\n", mode);

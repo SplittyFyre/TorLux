@@ -2,6 +2,7 @@
 
 #include "Socks.h"
 #include "UI.h"
+#include "Sender.h"
 #include "Server.h"
 #include "Context.h"
 #include "Generate.h"
@@ -17,6 +18,8 @@ uint8_t TorLux::initcode[32], TorLux::chatcode[32];
 
 pthread_mutex_t TorLux::chatMutex;
 std::vector<std::string> TorLux::chatBuffer;
+
+pthread_t TorLux::senderThread, TorLux::serverThread;
 
 int hcti(char c) {
     if (c >= '0' && c <= '9') return c - '0';
@@ -58,7 +61,6 @@ void TorLux::run(bool mode, const char *token) {
     Generate::initRandom();
     Socks::init();
     Server::init();
-    UI::init();
 
     if (mode) {
         join();
@@ -67,8 +69,10 @@ void TorLux::run(bool mode, const char *token) {
         initiate();
     }
 
-    pthread_t serverThread;
+    UI::init();
+
     pthread_create(&serverThread, nullptr, Server::run, nullptr);
+    pthread_create(&senderThread, nullptr, Sender::backgroundSender, nullptr);
 
     while (true) {
         if (!UI::update()) {
@@ -77,7 +81,12 @@ void TorLux::run(bool mode, const char *token) {
         }
     }
 
-    pthread_join(serverThread, NULL);
+    pthread_join(serverThread, nullptr);
+
+    pthread_mutex_lock(&Sender::mutex);
+    pthread_cond_signal(&Sender::cond);
+    pthread_mutex_unlock(&Sender::mutex);
+    pthread_join(senderThread, nullptr);
 
     Generate::cleanupRandom();
     Socks::cleanup();
