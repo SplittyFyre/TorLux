@@ -1,15 +1,15 @@
 #include "Server.h"
 
 #include "TorLux.h"
+#include "Context.h"
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <poll.h>
 
+#include "blunder.h"
 #include <cstring>
-#include <cstdio>
-#include <cstdlib>
 #include <vector>
 
 static int sockfd = -1;
@@ -17,8 +17,7 @@ static int sockfd = -1;
 void Server::init() {
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
-        puts("Could not create listening socket");
-        exit(1);
+        die("Could not create listening socket");
     }
 
     sockaddr_in server;
@@ -27,13 +26,11 @@ void Server::init() {
     server.sin_port = htons(42069);
 
     if (bind(sockfd, (sockaddr*) &server, sizeof(server))) {
-        puts("Listening socket bind failed");
-        exit(1);
+        die("Listening socket bind failed");
     }
 
     if (listen(sockfd, 8)) {
-        puts("Server listen(sockfd, 8) failed");
-        exit(1);
+        die("Server listen() function failed");
     }
 }
 
@@ -46,7 +43,7 @@ void* Server::run(void *) {
     sockaddr_in client;
 
     char buf[256];
-    const char *message = "HELLO_I_AM_HITCHCOCK\n";
+    const char *message = "MESSAGE_ACKNOWLEDGED";
 
     while (!TorLux::exitFlag) {
         pfd.revents = 0;
@@ -56,14 +53,24 @@ void* Server::run(void *) {
             
             ssize_t recved = recv(tmpfd, buf, 256, 0);
 
-            std::string msg = "here: ";
-            for (int i = 0; i < std::min(recved, ssize_t(10)); i++) {
-                msg.push_back(buf[i]);
-            }
+            if (recved > 32) {
+                bool flag = true;
+                for (int i = 0; i < 32; i++) {
+                    if (buf[i] != TorLux::chatcode[i]) {
+                        flag = false; break;
+                    }
+                }
 
-            pthread_mutex_lock(&TorLux::chatMutex);
-            TorLux::chatBuffer.push_back(msg);
-            pthread_mutex_unlock(&TorLux::chatMutex);
+                if (flag) {
+                    std::string msg = "Anon: ";
+                    for (int i = 32; i < recved; i++) {
+                        msg.push_back(buf[i]);
+                    }
+                    pthread_mutex_lock(&TorLux::chatMutex);
+                    TorLux::chatBuffer.push_back(msg);
+                    pthread_mutex_unlock(&TorLux::chatMutex);
+                }
+            }
 
             while (recved == 256) {
                 recved = recv(tmpfd, buf, 256, 0);
@@ -76,6 +83,61 @@ void* Server::run(void *) {
     }
 
     return nullptr;
+}
+
+void Server::waitForConnection() {
+    pollfd pfd;
+    pfd.fd = sockfd;
+    pfd.events = POLLIN;
+
+    const int cs = sizeof(sockaddr_in);
+    sockaddr_in client;
+
+    char buf[256];
+    const char *message = "READYTOCHAT";
+
+    bool good = false;
+
+    while (!TorLux::exitFlag) {
+        pfd.revents = 0;
+        poll(&pfd, 1, 500);
+        if (pfd.revents == POLLIN) {
+            int tmpfd = accept(sockfd, (sockaddr*) &client, (socklen_t*) &cs);
+            
+            ssize_t recved = recv(tmpfd, buf, 256, 0);
+
+            if (recved == 32 + 32 + HOSTNAME_LEN) {
+                bool flag = true;
+                for (int i = 0; i < 32; i++) {
+                    if (buf[i] != TorLux::initcode[i]) {
+                        flag = false; break;
+                    }
+                }
+
+                if (flag) {
+                    for (int i = 32; i < 64; i++) {
+                        TorLux::chatcode[i - 32] = buf[i];
+                    }
+
+                    for (int i = 64; i < recved; i++) {
+                        Context::targetAddr.push_back(buf[i]);
+                    }
+                    Context::targetAddr += ".onion";
+                    good = true;
+                }
+            }
+
+            while (recved == 256) {
+                recved = recv(tmpfd, buf, 256, 0);
+            }
+
+            write(tmpfd, message, strlen(message));
+
+            close(tmpfd);
+
+            if (good) break;
+        }
+    }
 }
 
 void Server::cleanup() {

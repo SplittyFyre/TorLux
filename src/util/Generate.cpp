@@ -1,10 +1,12 @@
 #include "Generate.h"
 
+#include <cstdio>
 #include <string>
 
 #include <unistd.h>
 #include <sys/stat.h>
 #include <pwd.h>
+#include "blunder.h"
 
 void Generate::generate() {
     passwd *pw = getpwuid(getuid());
@@ -33,4 +35,26 @@ void Generate::generate() {
     fclose(fout);
 
     mkdir(hsdir.c_str(), S_IRWXU);
+}
+
+
+
+
+static FILE *fin = NULL;
+
+void Generate::initRandom() {
+    fin = fopen("/dev/urandom", "rb");
+    if (fin == NULL) {
+        die("Failed to open /dev/urandom");
+    }
+}
+
+void Generate::randBytes(char *dest, size_t n) {
+    fread(dest, 1, n, fin);
+}
+
+void Generate::cleanupRandom() {
+    if (fin != NULL) {
+        fclose(fin);
+    }
 }

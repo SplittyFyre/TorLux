@@ -4,6 +4,7 @@
 #include "UI.h"
 #include "Server.h"
 #include "Context.h"
+#include "Generate.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -50,9 +51,21 @@ void TorLux::parseToken(const char *token) {
 
 void TorLux::run(bool mode, const char *token) {
 
+    if (mode) {
+        parseToken(token);
+    }
+
+    Generate::initRandom();
     Socks::init();
     Server::init();
     UI::init();
+
+    if (mode) {
+        join();
+    }
+    else {
+        initiate();
+    }
 
     pthread_t serverThread;
     pthread_create(&serverThread, nullptr, Server::run, nullptr);
@@ -66,6 +79,7 @@ void TorLux::run(bool mode, const char *token) {
 
     pthread_join(serverThread, NULL);
 
+    Generate::cleanupRandom();
     Socks::cleanup();
     Server::cleanup();
     UI::cleanup();
@@ -73,10 +87,26 @@ void TorLux::run(bool mode, const char *token) {
 }
 
 void TorLux::initiate() {
-    uint8_t token[TOKEN_LEN];
-    
+    Generate::randBytes((char*) initcode, 32);
+
+    puts("Send this token in a secure manner:\n");
+    for (int i = 0; i < 32; i++) printf("%02x", initcode[i]);
+    for (int i = 0; i < 56; i++) putchar(Context::myAddr[i]);
+    puts("\n\nWaiting for connection...");
+
+    Server::waitForConnection();
 }
 
 void TorLux::join() {
+    Generate::randBytes((char*) chatcode, 32);
 
+    puts("Joining...");
+
+    std::vector<char> msg;
+    for (int i = 0; i < 32; i++) msg.push_back(initcode[i]);
+    for (int i = 0; i < 32; i++) msg.push_back(chatcode[i]);
+    for (int i = 0; i < HOSTNAME_LEN; i++) msg.push_back(Context::myAddr[i]);
+
+    std::vector<char> resp;
+    Socks::transmit(msg, resp);
 }

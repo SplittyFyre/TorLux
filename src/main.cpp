@@ -42,7 +42,7 @@ void ensureData() {
     }
 
     Context::myAddr = std::string(std::istreambuf_iterator<char>(fin), std::istreambuf_iterator<char>()); // sluuurp
-    if (Context::myAddr.back() == '\n') Context::myAddr.pop_back();
+    while (Context::myAddr.back() == '\n') Context::myAddr.pop_back();
     if (Context::myAddr.length() != HOSTNAME_LEN_ONION) {
         printf("Invalid onion hostname length: %d; should be %d\n", int(Context::myAddr.length()), HOSTNAME_LEN_ONION);
         exit(0);

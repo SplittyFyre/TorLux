@@ -4,6 +4,7 @@
 namespace Server {
     void init();
     void* run(void *);
+    void waitForConnection();
     void cleanup();
 } 
 

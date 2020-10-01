@@ -2,21 +2,18 @@
 
 #include "Context.h"
 
+#include "blunder.h"
 #include <cstring>
-#include <cstdlib>
-#include <cstdio>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <iostream>
 
 static int sockfd = -1;
 
 void Socks::init() {
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
-        puts("Failed to create socket in Socks init");
-        exit(1);
+        die("Failed to create socket in Socks init");
     }
     
     sockaddr_in target;
@@ -25,24 +22,21 @@ void Socks::init() {
     target.sin_port = htons(9350);
 
     if (connect(sockfd, (sockaddr*) &target, sizeof(target))) {
-        puts("Failed to connect to SOCKS5 proxy, is tor running on 9350?");
-        exit(1);
+        die("Failed to connect to SOCKS5 proxy, is tor running on 9350?");
     }
 
     // initial identifying request
     const char iden[3] = { 0x05, 0x01, 0x00 };
     if (send(sockfd, iden, sizeof(iden), 0) == -1) {
-        puts("Failed to send initial request to SOCKS5 proxy");
-        exit(1);
+        die("Failed to send initial request to SOCKS5 proxy");
     }
 
     char idenrecv[2];
     if (recv(sockfd, idenrecv, 2, 0) == -1) {
-        puts("Failed to receive initial response from SOCKS5 proxy");
+        die("Failed to receive initial response from SOCKS5 proxy");
     }
     if (idenrecv[1] != 0x00) {
-        puts("Failed to authenticate for SOCKS5 proxy");
-        exit(1);
+        die("Failed to authenticate for SOCKS5 proxy");
     }
 }
 
@@ -58,23 +52,19 @@ void Socks::transmit(const std::vector<char> &data, std::vector<char> &resp) {
     memcpy(request + 67, &port, 2);
 
     if (send(sockfd, request, sizeof(request), 0) == -1) {
-        puts("Failed to transmit SOCKS5 request");
-        exit(1);
+        die("Failed to transmit SOCKS5 request");
     }
     
     char requestResp[10];
     if (recv(sockfd, requestResp, 10, 0) == -1) {
-        puts("Failed to receive SOCKS5 response to request");
-        exit(1);
+        die("Failed to receive SOCKS5 response to request");
     }
     if (requestResp[1] != 0x00) {
-        printf("SOCKS5 request failed with code 0x%x != 0x00\n", requestResp[1]);
-        exit(1);
+        die("SOCKS5 request failed with code 0x%x != 0x00\n", requestResp[1]);
     }
 
     if (send(sockfd, data.data(), data.size(), 0) == -1) {
-        puts("Failed to transmit real data to SOCKS5");
-        exit(1);
+        die("Failed to transmit real data to SOCKS5");
     }
 
     size_t bufsize = 2048;
@@ -84,8 +74,7 @@ void Socks::transmit(const std::vector<char> &data, std::vector<char> &resp) {
         ssize_t recved = recv(sockfd, resp.data() + bufsize - 2048, 2048, 0);
         if (recved < 2048) {
             if (recved == -1) {
-                puts("Error receiving response from SOCKS5 proxy");
-                exit(1);
+                die("Error receiving response from SOCKS5 proxy");
             }
             resp.resize(bufsize - (2048 - recved));
             break;

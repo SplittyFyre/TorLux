@@ -1,1 +1,2 @@
-obj/Server.o: src/network/Server.cpp include/Server.h include/TorLux.h
+obj/Server.o: src/network/Server.cpp include/Server.h include/TorLux.h \
+ include/Context.h include/blunder.h
