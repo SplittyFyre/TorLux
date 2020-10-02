@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/torlux",
-            "args": [],
+            "args": ["initiate"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
