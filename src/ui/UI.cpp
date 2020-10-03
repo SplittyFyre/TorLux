@@ -23,6 +23,8 @@ void UI::init() {
     timeout(1); // if negative, blocking, if 0, nonblocking, else, milliseconds
     scrollok(chat, true);
 
+    wprintw(input, ">>> ");
+
     inited = true;
 }
 
@@ -52,13 +54,12 @@ bool UI::update() {
             }
 
             if (!s.empty()) {
-
                 pthread_mutex_lock(&Sender::mutex);
                 Sender::toSend.push_back(s);
                 pthread_cond_signal(&Sender::cond);
                 pthread_mutex_unlock(&Sender::mutex);
 
-                wprintw(chat, "%s\n\n", s.c_str());
+                wprintw(chat, "You: %s\n\n", s.c_str());
                 s.clear();
             }
         }
