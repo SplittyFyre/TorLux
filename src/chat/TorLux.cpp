@@ -63,6 +63,7 @@ void TorLux::run(bool mode, const char *token) {
     Server::init();
 
     if (mode) {
+        Socks::makeRequest();
         join();
     }
     else {
@@ -104,6 +105,7 @@ void TorLux::initiate() {
     puts("\n\nWaiting for connection...");
 
     Server::waitForConnection();
+    Socks::makeRequest();
 }
 
 void TorLux::join() {

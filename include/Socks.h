@@ -5,6 +5,7 @@
 
 namespace Socks {
     void init();
+    void makeRequest();
     void cleanup();
     void transmit(const std::vector<char> &data, std::vector<char> &resp);
 };

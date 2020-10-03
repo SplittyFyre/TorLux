@@ -31,6 +31,7 @@ void Generate::generate() {
     fputs("SocksPort 9350\n\n", fout);
     fprintf(fout, "HiddenServiceDir %s\n", hsdir.c_str());
     fputs("HiddenServicePort 80 127.0.0.1:42069\n", fout);
+    fputs("\nHiddenServiceVersion 3\n", fout);
     fputs("\n# feel free to add additional tor configurations:\n", fout);
     fclose(fout);
 
