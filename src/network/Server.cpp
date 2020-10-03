@@ -56,7 +56,7 @@ void* Server::run(void *) {
             if (recved > 32) {
                 bool flag = true;
                 for (int i = 0; i < 32; i++) {
-                    if (buf[i] != TorLux::chatcode[i]) {
+                    if (uint8_t(buf[i]) != TorLux::chatcode[i]) {
                         flag = false; break;
                     }
                 }

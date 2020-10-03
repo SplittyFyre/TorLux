@@ -17,7 +17,10 @@ void* Sender::backgroundSender(void*) {
         pthread_cond_wait(&cond, &mutex);
         if (TorLux::exitFlag) break;
         for (auto &s : toSend) {
-            Socks::transmit(std::vector<char>(s.begin(), s.end()), resp);
+            std::vector<char> msg;
+            for (int i = 0; i < 32; i++) msg.push_back(TorLux::chatcode[i]);
+            for (char c : s) msg.push_back(c);
+            Socks::transmit(msg, resp);
         }
         toSend.clear();
     }
