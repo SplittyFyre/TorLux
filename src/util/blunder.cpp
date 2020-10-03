@@ -7,6 +7,8 @@
 #include <cstdio>
 #include <cstdarg>
 #include <cstdlib>
+#include <cerrno>
+#include <cstring>
 
 void die(const char *fmt, ...) {
     Socks::cleanup();
@@ -20,7 +22,7 @@ void die(const char *fmt, ...) {
     vprintf(fmt, args);
     va_end(args);
     
-    puts("");
+    printf("\nerrno string: %s (%d)\n", strerror(errno), errno);
 
     exit(1);
 }
