@@ -35,4 +35,4 @@ obj/UI.o: src/ui/UI.cpp include/UI.h include/Sender.h include/TorLux.h
 
 	g++ -std=c++17 -O0 -pthread -MMD -Wall -c -I"include" -I"headers" src/ui/UI.cpp -o obj/UI.o
 bin/torlux: obj/main.o obj/blunder.o obj/Generate.o obj/TorLux.o obj/Context.o obj/Sender.o obj/Socks.o obj/Server.o obj/UI.o
-	g++ -std=c++17 -O0 -pthread -MMD -Wall -L"lib" -lncurses obj/main.o obj/blunder.o obj/Generate.o obj/TorLux.o obj/Context.o obj/Sender.o obj/Socks.o obj/Server.o obj/UI.o -o bin/torlux
+	g++ -std=c++17 -O0 -pthread -MMD -Wall -L"lib" obj/main.o obj/blunder.o obj/Generate.o obj/TorLux.o obj/Context.o obj/Sender.o obj/Socks.o obj/Server.o obj/UI.o -o bin/torlux -lncurses

@@ -4,7 +4,7 @@ import os.path
 print('Making make...')
 
 cco = '\tg++ -std=c++17 -O0 -pthread -MMD -Wall -c -I"include" -I"headers" {} -o {}\n'
-ccl = '\tg++ -std=c++17 -O0 -pthread -MMD -Wall -L"lib" -lncurses {} -o {}\n'
+ccl = '\tg++ -std=c++17 -O0 -pthread -MMD -Wall -L"lib" {} -o {} -lncurses\n'
 
 def getCCO(source, objPath):
     return cco.format(source, objPath)

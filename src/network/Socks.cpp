@@ -38,9 +38,7 @@ void Socks::init() {
     if (idenrecv[1] != 0x00) {
         die("Failed to authenticate for SOCKS5 proxy");
     }
-}
 
-void Socks::transmit(const std::vector<char> &data, std::vector<char> &resp) {
     char request[4 + 1 + 62 + 2];
     request[0] = 0x05; // SOCKS5
     request[1] = 0x01; // connect
@@ -62,7 +60,10 @@ void Socks::transmit(const std::vector<char> &data, std::vector<char> &resp) {
     if (requestResp[1] != 0x00) {
         die("SOCKS5 request failed with code 0x%x != 0x00\n", requestResp[1]);
     }
+}
 
+void Socks::transmit(const std::vector<char> &data, std::vector<char> &resp) {
+    
     if (send(sockfd, data.data(), data.size(), 0) == -1) {
         die("Failed to transmit real data to SOCKS5");
     }
