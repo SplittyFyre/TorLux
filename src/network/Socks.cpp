@@ -11,6 +11,16 @@
 static int sockfd = -1;
 
 void Socks::init() {
+    
+}
+
+void Socks::makeRequest() {
+    
+}
+
+void Socks::transmit(const std::vector<char> &data, std::vector<char> &resp) {
+
+
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
         die("Failed to create socket in Socks init");
@@ -38,9 +48,16 @@ void Socks::init() {
     if (idenrecv[1] != 0x00) {
         die("Failed to authenticate for SOCKS5 proxy");
     }
-}
 
-void Socks::makeRequest() {
+
+
+
+
+
+
+
+
+
     char request[4 + 1 + 62 + 2];
     request[0] = 0x05; // SOCKS5
     request[1] = 0x01; // connect
@@ -62,9 +79,17 @@ void Socks::makeRequest() {
     if (requestResp[1] != 0x00) {
         die("SOCKS5 request failed with code 0x%x != 0x00\n", requestResp[1]);
     }
-}
 
-void Socks::transmit(const std::vector<char> &data, std::vector<char> &resp) {
+
+
+
+
+
+
+
+
+
+
 
     if (send(sockfd, data.data(), data.size(), 0) == -1) {
         die("Failed to transmit real data to SOCKS5");
