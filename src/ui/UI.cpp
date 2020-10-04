@@ -24,6 +24,7 @@ void UI::init() {
     scrollok(chat, true);
 
     wprintw(input, ">>> ");
+    wrefresh(input);
 
     inited = true;
 }
