@@ -1,24 +1,14 @@
 #include <cstdio>
 #include <cstring>
-#include <string>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <ncurses.h>
 #include <pwd.h>
-#include <poll.h>
+#include <unistd.h>
+#include <signal.h>
 
 #include <fstream>
 #include <string>
-#include <vector>
-#include <iostream>
-#include "Socks.h"
-#include "Sender.h"
 #include "TorLux.h"
 #include "Generate.h"
 #include "Context.h"
-#include "UI.h"
 
 void printhelp() {
     puts("Usage: torlux <mode> ...");
@@ -51,6 +41,8 @@ void ensureData() {
 }
 
 int main(int argc, char **argv) {   
+
+    signal(SIGPIPE, SIG_IGN);
 
     if (argc < 2) {
         printhelp();
@@ -85,58 +77,3 @@ int main(int argc, char **argv) {
     
     return 0;
 }
-
-/*int main(void) {
-
-    int socket_desc = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_desc == -1) {
-        puts("Could not create socket");
-        return 0;
-    }
-
-    sockaddr_in server;
-    server.sin_family = AF_INET;
-    server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons(8888);
-
-    if (bind(socket_desc, (sockaddr*) &server, sizeof(server))) {
-        puts("Bind failed");
-        return 0;
-    }
-
-    puts("Bind done"); 
-
-    listen(socket_desc, 3);
-
-    const char *message = "<html>HELLO. I AM HITCHCOCK</html>\n\n";
-    puts("Waiting for connections...");
-    
-    int c = sizeof(sockaddr_in);
-    int new_socket;
-    sockaddr_in client;
-
-    char data[256];
-
-    while (true) {
-        pollfd pfd;
-        pfd.fd = socket_desc;
-        pfd.events = POLLIN;
-        pfd.revents = 0;
-
-        poll(&pfd, 1, 1000);
-        puts("Poll done");
-        if (pfd.revents == POLLIN) {
-            new_socket = accept(socket_desc, (sockaddr*) &client, (socklen_t*) &c);
-            if (new_socket == -1) {
-                puts("FUCK");
-                break;
-            }
-            recv(new_socket, data, 256, 0);
-            printf("Connection accepted with: %s\n", data);
-            write(new_socket, message, strlen(message));
-        }
-        
-    }
-
-    return 0;
-}*/

@@ -1,6 +1,6 @@
 all: bin/torlux
-obj/main.o: src/main.cpp include/Socks.h include/Sender.h \
- include/TorLux.h include/Generate.h include/Context.h include/UI.h
+obj/main.o: src/main.cpp include/TorLux.h include/Generate.h \
+ include/Context.h
 
 	g++ -std=c++17 -O0 -pthread -MMD -Wall -c -I"include" -I"headers" src/main.cpp -o obj/main.o
 obj/blunder.o: src/util/blunder.cpp include/blunder.h include/Socks.h \
