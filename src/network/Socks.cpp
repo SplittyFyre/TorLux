@@ -2,7 +2,7 @@
 
 #include "Context.h"
 
-#include "blunder.h"
+#include "util.h"
 #include <cstring>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -110,6 +110,9 @@ void Socks::transmit(const std::vector<char> &data, std::vector<char> &resp) {
         bufsize += 2048;
         resp.resize(bufsize);
     }
+
+    close(sockfd); // VERY IMPORTANT
+    sockfd = -1;
 }
 
 void Socks::cleanup() {

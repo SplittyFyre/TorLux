@@ -40,7 +40,7 @@ void ensureData() {
     }
 }
 
-int main(int argc, char **argv) {   
+int main(int argc, char **argv) {
 
     signal(SIGPIPE, SIG_IGN);
 

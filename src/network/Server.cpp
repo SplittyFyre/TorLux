@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <poll.h>
 
-#include "blunder.h"
+#include "util.h"
 #include <cstring>
 #include <vector>
 
@@ -62,7 +62,7 @@ void* Server::run(void *) {
                 }
 
                 if (flag) {
-                    std::string msg = "Anon: ";
+                    std::string msg;
                     for (int i = 32; i < recved; i++) {
                         msg.push_back(buf[i]);
                     }
@@ -107,28 +107,35 @@ void Server::waitForConnection() {
             ssize_t recved = recv(tmpfd, buf, 256, 0);
 
             if (recved == 32 + 32 + HOSTNAME_LEN) {
-                bool flag = true;
+                good = true;
+
                 for (int i = 0; i < 32; i++) {
                     if (uint8_t(buf[i]) != TorLux::initcode[i]) {
-                        puts("bad init code");
-                        printf("%d != %d\n", buf[i], TorLux::initcode[i]);
-                        flag = false; break;
+                        puts("Received request with invalid initialization code");
+                        good = false; break;
                     }
                 }
 
-                if (flag) {
-                    for (int i = 32; i < 64; i++) {
-                        TorLux::chatcode[i - 32] = uint8_t(buf[i]);
-                    }
-
+                if (good) {
                     for (int i = 64; i < recved; i++) {
+                        if (!validb32(buf[i])) {
+                            good = false;
+                            Context::targetAddr.clear();
+                            puts("Malformed request: invalid onion address");
+                            break;
+                        }
                         Context::targetAddr.push_back(buf[i]);
                     }
-                    Context::targetAddr += ".onion";
-                    good = true;
-                    puts("good = true");
+
+                    if (good) {
+                        Context::targetAddr += ".onion";
+                        for (int i = 32; i < 64; i++) {
+                            TorLux::chatcode[i - 32] = uint8_t(buf[i]);
+                        }
+                    }
                 }
             }
+            else puts("Malformed request: invalid size");
 
             while (recved == 256) {
                 recved = recv(tmpfd, buf, 256, 0);
@@ -138,7 +145,6 @@ void Server::waitForConnection() {
 
             close(tmpfd);
 
-            puts("should break now");
             if (good) break;
         }
     }

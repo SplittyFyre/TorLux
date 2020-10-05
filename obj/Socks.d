@@ -1,2 +1,2 @@
 obj/Socks.o: src/network/Socks.cpp include/Socks.h include/Context.h \
- include/blunder.h
+ include/util.h

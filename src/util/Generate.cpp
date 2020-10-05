@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <pwd.h>
-#include "blunder.h"
+#include "util.h"
 
 void Generate::generate() {
     passwd *pw = getpwuid(getuid());

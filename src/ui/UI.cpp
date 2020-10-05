@@ -12,13 +12,23 @@ static std::string s;
 
 #define INPUT_HEIGHT 2
 
+#define PEER_COLOUR 1
+#define USER_COLOUR 2
+
 void UI::init() {
     initscr();
+
+    use_default_colors();
+    start_color();
+
+    init_pair(PEER_COLOUR, COLOR_GREEN, -1);
+    init_pair(USER_COLOUR, COLOR_MAGENTA, -1);
+
     getmaxyx(stdscr, sizey, sizex);
     chat = newwin(sizey - INPUT_HEIGHT, sizex, 0, 0);
     input = newwin(INPUT_HEIGHT, sizex, sizey - INPUT_HEIGHT, 0);
     refresh();
-
+    
     noecho();
     timeout(1); // if negative, blocking, if 0, nonblocking, else, milliseconds
     scrollok(chat, true);
@@ -33,6 +43,9 @@ bool UI::update() {
 
     pthread_mutex_lock(&TorLux::chatMutex);
     for (auto &a : TorLux::chatBuffer) {
+        wattron(chat, COLOR_PAIR(PEER_COLOUR));
+        wprintw(chat, "Anon: ");
+        wattroff(chat, COLOR_PAIR(PEER_COLOUR));
         wprintw(chat, "%s\n\n", a.c_str());
     }
     TorLux::chatBuffer.clear();
@@ -60,7 +73,11 @@ bool UI::update() {
                 pthread_cond_signal(&Sender::cond);
                 pthread_mutex_unlock(&Sender::mutex);
 
-                wprintw(chat, "You: %s\n\n", s.c_str());
+                wattron(chat, COLOR_PAIR(USER_COLOUR));
+                wprintw(chat, "You: ");
+                wattroff(chat, COLOR_PAIR(USER_COLOUR));
+                wprintw(chat, "%s\n\n", s.c_str());
+
                 s.clear();
             }
         }

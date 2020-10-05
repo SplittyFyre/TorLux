@@ -1,5 +1,6 @@
 #include "TorLux.h"
 
+#include "util.h"
 #include "Socks.h"
 #include "UI.h"
 #include "Sender.h"
@@ -21,12 +22,6 @@ std::vector<std::string> TorLux::chatBuffer;
 
 pthread_t TorLux::senderThread, TorLux::serverThread;
 
-int hcti(char c) {
-    if (c >= '0' && c <= '9') return c - '0';
-    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
-    return -1;
-}
-
 void TorLux::parseToken(const char *token) {
     size_t len = strlen(token);
     if (len != TOKEN_LEN) {
@@ -43,7 +38,7 @@ void TorLux::parseToken(const char *token) {
     }
     for (unsigned i = 64; i < len; i++) {
         char c = token[i]; 
-        if (!((c >= 'a' && c <= 'z') || (c >= '2' && c <= '7') || (c >= 'A' && c <= 'Z'))) {
+        if (!validb32(c)) {
             puts("Invalid token");
             exit(0);
         }
