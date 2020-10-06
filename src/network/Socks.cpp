@@ -1,6 +1,6 @@
 #include "Socks.h"
 
-#include "Context.h"
+#include "TorLux.h"
 
 #include "util.h"
 #include <cstring>
@@ -19,7 +19,6 @@ void Socks::makeRequest() {
 }
 
 void Socks::transmit(const std::vector<char> &data, std::vector<char> &resp) {
-
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
@@ -64,7 +63,7 @@ void Socks::transmit(const std::vector<char> &data, std::vector<char> &resp) {
     request[2] = 0x00; // reserved
     request[3] = 0x03; // to give domain name
     request[4] = 62; // domain length of onion v3 always 56 + 6 = 62
-    for (int i = 0; i < 62; i++) request[5 + i] = Context::targetAddr[i];
+    for (int i = 0; i < 62; i++) request[5 + i] = TorLux::targetAddr[i];
     uint16_t port = htons(80);
     memcpy(request + 67, &port, 2);
 

@@ -9,20 +9,23 @@ static bool inited = false;
 static int sizey, sizex;
 static WINDOW *chat, *input;
 static std::string s;
+void parseCommand();
 
 #define INPUT_HEIGHT 2
 
 #define PEER_COLOUR 1
 #define USER_COLOUR 2
+#define PORTAL_COLOUR 3
 
 void UI::init() {
     initscr();
 
     use_default_colors();
     start_color();
-
-    init_pair(PEER_COLOUR, COLOR_GREEN, -1);
-    init_pair(USER_COLOUR, COLOR_MAGENTA, -1);
+    
+    init_pair(PEER_COLOUR, COLOR_BLUE, -1);
+    init_pair(USER_COLOUR, COLOR_RED, -1);
+    init_pair(PORTAL_COLOUR, COLOR_GREEN, -1);
 
     getmaxyx(stdscr, sizey, sizex);
     chat = newwin(sizey - INPUT_HEIGHT, sizex, 0, 0);
@@ -35,6 +38,11 @@ void UI::init() {
 
     wprintw(input, ">>> ");
     wrefresh(input);
+
+    wattron(chat, COLOR_PAIR(PORTAL_COLOUR));
+    wprintw(chat, "TorLux session initiated. You may now chat securely and anonymously.\n\n");
+    wattroff(chat, COLOR_PAIR(PORTAL_COLOUR));
+    wrefresh(chat);
 
     inited = true;
 }
@@ -65,6 +73,11 @@ bool UI::update() {
 
             if (s == "/exit") {
                 return false;
+            }
+
+            if (s.front() == '/') {
+                parseCommand();
+                s.clear();
             }
 
             if (!s.empty()) {
@@ -101,4 +114,12 @@ void UI::cleanup() {
         delwin(input);
         endwin();
     }
+}
+
+
+
+void parseCommand() {
+
+    
+
 }

@@ -1,7 +1,6 @@
 #include "Server.h"
 
 #include "TorLux.h"
-#include "Context.h"
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -120,15 +119,15 @@ void Server::waitForConnection() {
                     for (int i = 64; i < recved; i++) {
                         if (!validb32(buf[i])) {
                             good = false;
-                            Context::targetAddr.clear();
+                            TorLux::targetAddr.clear();
                             puts("Malformed request: invalid onion address");
                             break;
                         }
-                        Context::targetAddr.push_back(buf[i]);
+                        TorLux::targetAddr.push_back(buf[i]);
                     }
 
                     if (good) {
-                        Context::targetAddr += ".onion";
+                        TorLux::targetAddr += ".onion";
                         for (int i = 32; i < 64; i++) {
                             TorLux::chatcode[i - 32] = uint8_t(buf[i]);
                         }

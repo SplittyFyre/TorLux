@@ -7,6 +7,10 @@
 #include <string>
 #include <pthread.h>
 
+#define HOSTNAME_LEN 56
+#define HOSTNAME_LEN_ONION (56 + 6)
+#define TOKEN_LEN (32 * 2 + 56)
+
 class TorLux {
 public:
     TorLux() = delete;
@@ -21,6 +25,8 @@ public:
     static std::vector<std::string> chatBuffer;
 
     static pthread_t senderThread, serverThread;
+
+    static std::string myAddr, targetAddr;
 private:
     static void parseToken(const char *token);
     static void initiate();

@@ -8,7 +8,6 @@
 #include <string>
 #include "TorLux.h"
 #include "Generate.h"
-#include "Context.h"
 
 void printhelp() {
     puts("Usage: torlux <mode> ...");
@@ -32,10 +31,10 @@ void ensureData() {
         exit(0);
     }
     
-    Context::myAddr = std::string(std::istreambuf_iterator<char>(fin), std::istreambuf_iterator<char>()); // sluuurp
-    while (Context::myAddr.back() == '\n') Context::myAddr.pop_back();
-    if (Context::myAddr.length() != HOSTNAME_LEN_ONION) {
-        printf("Invalid onion hostname length: %d; should be %d\n", int(Context::myAddr.length()), HOSTNAME_LEN_ONION);
+    TorLux::myAddr = std::string(std::istreambuf_iterator<char>(fin), std::istreambuf_iterator<char>()); // sluuurp
+    while (TorLux::myAddr.back() == '\n') TorLux::myAddr.pop_back();
+    if (TorLux::myAddr.length() != HOSTNAME_LEN_ONION) {
+        printf("Invalid onion hostname length: %d; should be %d\n", int(TorLux::myAddr.length()), HOSTNAME_LEN_ONION);
         exit(0);
     }
 }
