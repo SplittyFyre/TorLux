@@ -100,6 +100,12 @@ void Server::waitForConnection() {
     while (!TorLux::exitFlag) {
         pfd.revents = 0;
         poll(&pfd, 1, 500);
+        
+        if (TorLux::signalFlag) {
+            TorLux::exitFlag = true;
+            break;
+        }
+
         if (pfd.revents == POLLIN) {
             int tmpfd = accept(sockfd, (sockaddr*) &client, (socklen_t*) &cs);
             

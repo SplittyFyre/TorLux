@@ -11,11 +11,12 @@
 
 void printhelp() {
     puts("Usage: torlux <mode> ...");
+    puts("");
     puts("Modes:");
-    puts("help     -> show this help dialogue");
-    puts("generate -> creates or refreshes data in ~/.torlux");
-    puts("initiate -> initiates a torlux chat session and provides a token");
-    puts("join     -> joins a torlux chat session, pass token as next argument");
+    puts("  help           show this help dialogue");
+    puts("  generate       creates or refreshes data in ~/.torlux");
+    puts("  initiate       initiates a torlux chat session and provides a token");
+    puts("  join           joins a torlux chat session, pass token as next argument");
 }
 
 void ensureData() {
@@ -39,9 +40,14 @@ void ensureData() {
     }
 }
 
+void handleSigint(int) {
+    TorLux::signalFlag = true;
+}
+
 int main(int argc, char **argv) {
 
     signal(SIGPIPE, SIG_IGN);
+    signal(SIGINT, handleSigint);
 
     if (argc < 2) {
         printhelp();

@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <cstring>
 
+volatile sig_atomic_t TorLux::signalFlag = false;
 std::atomic<bool> TorLux::exitFlag(false);
 
 uint8_t TorLux::initcode[32], TorLux::chatcode[32];
@@ -66,12 +67,25 @@ void TorLux::run(bool mode, const char *token) {
         initiate();
     }
 
+    if (exitFlag) {
+        Generate::cleanupRandom();
+        Socks::cleanup();
+        Server::cleanup();
+        puts("Received SIGINT, exiting");
+        return;
+    }
+
     UI::init();
 
     pthread_create(&serverThread, nullptr, Server::run, nullptr);
     pthread_create(&senderThread, nullptr, Sender::backgroundSender, nullptr);
 
     while (true) {
+        if (signalFlag) {
+            exitFlag = true;
+            break;
+        }
+
         if (!UI::update()) {
             exitFlag = true;
             break;
@@ -89,7 +103,13 @@ void TorLux::run(bool mode, const char *token) {
     Socks::cleanup();
     Server::cleanup();
     UI::cleanup();
-    puts("eyo!");
+
+    if (signalFlag) {
+        puts("TorLux clean exit, SIGINT");
+    }
+    else {
+        puts("TorLux clean exit");
+    }
 }
 
 void TorLux::initiate() {
@@ -101,6 +121,7 @@ void TorLux::initiate() {
     puts("\n\nWaiting for connection...");
 
     Server::waitForConnection();
+    if (TorLux::exitFlag) return;
     Socks::makeRequest();
 }
 

@@ -18,6 +18,7 @@ public:
 
     static void run(bool mode, const char *token = nullptr);
 
+    static volatile sig_atomic_t signalFlag;
     static std::atomic<bool> exitFlag;
     static uint8_t initcode[32], chatcode[32];
     
