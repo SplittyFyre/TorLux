@@ -2,7 +2,7 @@
 
 #include "TorLux.h"
 
-#include "util.h"
+#include "include/util.h"
 #include <cstring>
 #include <sys/socket.h>
 #include <arpa/inet.h>
