@@ -6,7 +6,7 @@
 
 #include "tool.h"
 
-char discardbuf[4096];
+static char discardbuf[4096];
 void read_discard(int sockfd) {
     while (recv(sockfd, discardbuf, 4096, 0) == 4096);
 }

@@ -6,8 +6,7 @@
 #include "tool.h"
 
 void printhelp() {
-    puts("Usage: torlux <mode> ...");
-    puts("");
+    puts("Usage: torlux <mode> ...\n");
     puts("Modes:");
     puts("  help           show this help dialogue");
     puts("  generate       creates or refreshes data in ~/.torlux");
@@ -30,7 +29,7 @@ void ensureData() {
 
     fgets(buf, HOSTNAME_LEN_ONION + 1, fin);
     fclose(fin);
-    
+
     if (strlen(buf) != HOSTNAME_LEN_ONION) {
         printf("Invalid onion hostname length: %zu; should be %d\n", strlen(buf), HOSTNAME_LEN_ONION);
         exit(0);
