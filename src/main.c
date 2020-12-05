@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <pwd.h>
 #include <unistd.h>
@@ -34,6 +35,8 @@ void ensureData() {
         printf("Invalid onion hostname length: %zu; should be %d\n", strlen(buf), HOSTNAME_LEN_ONION);
         exit(0);
     }
+
+    puts(buf);
 }
 
 void handleSigint(int i) {
