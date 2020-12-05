@@ -39,7 +39,7 @@ void TorLux::parseToken(const char *token) {
         initcode[i] = v1 * 16 + v2;
     }
     for (unsigned i = 64; i < len; i++) {
-        char c = token[i]; 
+        char c = token[i];
         if (!validb32(c)) {
             puts("Invalid token");
             exit(0);
