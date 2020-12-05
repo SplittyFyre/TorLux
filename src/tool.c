@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <stdarg.h>
 
 void die(const char *fmt, ...) {
     puts("Program died badly:");

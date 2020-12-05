@@ -15,6 +15,6 @@ inline bool validb32(char c) {
     return (c >= 'a' && c <= 'z') || (c >= '2' && c <= '7') || (c >= 'A' && c <= 'Z');
 }
 
-void die(const char *fmt, ...)
+void die(const char *fmt, ...);
 
 #endif /* INCLUDE_TOOL */
