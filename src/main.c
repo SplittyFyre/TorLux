@@ -4,7 +4,9 @@
 #include <pwd.h>
 #include <unistd.h>
 #include <signal.h>
+
 #include "tool.h"
+#include "torlux.h"
 
 void printhelp() {
     puts("Usage: torlux <mode> ...\n");
@@ -73,7 +75,6 @@ int main(int argc, char **argv) {
             puts("Insufficient arguments, join needs token");
             return 0;
         }
-        
     }
     else {
         printf("Unknown mode: %s\n", mode);

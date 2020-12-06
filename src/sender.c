@@ -41,6 +41,14 @@ void transmit(char *data, size_t size) {
     }
 
 
-
+    char request[4 + 1 + 62 + 2];
+    request[0] = 0x05; // SOCKS5
+    request[1] = 0x01; // connect
+    request[2] = 0x00; // reserved
+    request[3] = 0x03; // to give domain name
+    request[4] = 62; // domain length of onion v3 always 56 + 6 = 62
+    for (int i = 0; i < 62; i++) request[5 + i] = targetAddr[i];
+    uint16_t port = htons(80);
+    memcpy(request + 67, &port, 2);
     
 }
