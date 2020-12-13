@@ -9,6 +9,12 @@
 #define HOSTNAME_LEN_ONION (56 + 6)
 #define TOKEN_LEN (32 * 2 + 56)
 
+extern volatile atomic_flag exitFlag;
+extern char initcode[32], chatcode[32];
+
+extern pthread_mutex_t chatMutex;
+extern char incoming[256];
+
 extern char myAddr[HOSTNAME_LEN_ONION], targetAddr[HOSTNAME_LEN_ONION];
 
 #endif /* INCLUDE_TORLUX */

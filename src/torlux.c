@@ -10,7 +10,7 @@ volatile atomic_flag exitFlag = ATOMIC_FLAG_INIT;
 char initcode[32], chatcode[32];
 
 pthread_mutex_t chatMutex = PTHREAD_MUTEX_INITIALIZER;
-char *incoming = NULL;
+char incoming[256];
 
 pthread_t senderThread, serverThread;
 
