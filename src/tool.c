@@ -5,6 +5,14 @@
 #include <errno.h>
 #include <string.h>
 #include <stdarg.h>
+#include <sys/socket.h>
+
+
+static char discardbuf[4096];
+void read_discard(int sockfd) {
+    while (recv(sockfd, discardbuf, 4096, 0) > 0);
+}
+
 
 int hcti(char c) {
     if (c >= '0' && c <= '9') return c - '0';
@@ -36,3 +44,5 @@ void csrng(char *dest, size_t s) {
     fread(dest, 1, s, fin);
     fclose(fin);
 }
+
+

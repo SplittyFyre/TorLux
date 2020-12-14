@@ -8,11 +8,6 @@
 #include "torlux.h"
 #include "tool.h"
 
-static char discardbuf[4096];
-void read_discard(int sockfd) {
-    while (recv(sockfd, discardbuf, 4096, 0) == 4096);
-}
-
 void socks5init(int sockfd) {
     // initial identifying request
     const char iden[3] = { 0x05, 0x01, 0x00 };

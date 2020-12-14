@@ -40,6 +40,7 @@ void* server_run(void *args) {
     struct sockaddr_in client;
 
     char buf[256];
+    const char *reply = "whats never beens never been so\n";
 
     while (!atomic_flag_test_and_set(&exitFlag)) {
         atomic_flag_clear(&exitFlag);
@@ -54,16 +55,19 @@ void* server_run(void *args) {
                 for (int i = 0; i < 32; i++) 
                     if (buf[i] != chatcode[i]) { flag = false; break; }
                 
-                if (flag) {
+                if (flag) { // if transmission is legit
                     int ptr = 0;
                     pthread_mutex_lock(&chatMutex);
                     for (int i = 32; i < recved; i++) incoming[ptr++] = buf[i];
                     incoming[ptr] = '\0';
                     pthread_mutex_unlock(&chatMutex);
+
+                    read_discard(tmpfd);
+                    write(tmpfd, reply, strlen(reply));
                 }
             }
-
             
+            close(tmpfd);
         }
     }
 }

@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+void read_discard(int sockfd);
+
 int hcti(char c);
 bool validb32(char c);
 void die(const char *fmt, ...);
