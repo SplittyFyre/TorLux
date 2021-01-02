@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <poll.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "torlux.h"
 #include "tool.h"
@@ -36,18 +38,15 @@ void* server_run(void *args) {
     pfd.fd = sockfd;
     pfd.events = POLLIN;
 
-    const int cs = sizeof(struct sockaddr_in);
-    struct sockaddr_in client;
-
     char buf[256];
-    const char *reply = "whats never beens never been so\n";
+    const char *response = "whats never beens never been so\n";
 
     while (!atomic_flag_test_and_set(&exitFlag)) {
         atomic_flag_clear(&exitFlag);
         pfd.revents = 0;
         poll(&pfd, 1, 500);
         if (pfd.revents == POLLIN) {
-            int tmpfd = accept(sockfd, (struct sockaddr*) &client, (socklen_t*) &cs);
+            int tmpfd = accept(sockfd, NULL, NULL);
             ssize_t recved = recv(tmpfd, buf, 256, 0);
             
             if (recved > 32) {
@@ -63,11 +62,64 @@ void* server_run(void *args) {
                     pthread_mutex_unlock(&chatMutex);
 
                     read_discard(tmpfd);
-                    write(tmpfd, reply, strlen(reply));
+                    write(tmpfd, response, strlen(response));
                 }
             }
-            
+
             close(tmpfd);
+        }
+    }
+    return NULL;
+}
+
+void listen_for_connect() {
+    struct pollfd pfd;
+    pfd.fd = sockfd;
+    pfd.events = POLLIN;
+
+    char buf[256];
+    const char *response = "use superior free software like GAHNOO/Linux -> happy rms noises";
+
+    bool good = false;
+
+    while (!good && !atomic_flag_test_and_set(&exitFlag)) {
+        atomic_flag_clear(&exitFlag);
+        pfd.revents = 0;
+        poll(&pfd, 1, 500);
+
+        if (pfd.revents == POLLIN) {
+            int tmpfd = accept(sockfd, NULL, NULL);
+
+            ssize_t recved = recv(tmpfd, buf, 256, 0);
+            if (recved == 64 + HOSTNAME_LEN) {
+                good = true;
+
+                for (int i = 0; i < 32; i++) {
+                    if (buf[i] != initcode[i]) {
+                        puts("Bad request: invalid initialization code");
+                        good = false; break;
+                    }
+                }
+
+                if (good) {
+                    for (int i = 64; i < recved; i++) {
+                        if (!validb32(buf[i])) {
+                            good = false;
+                            puts("Bad request: onion address is invalid base32");
+                            break;
+                        }
+                        targetAddr[i - 64] = buf[i];
+                    }
+
+                    if (good) {
+                        memcpy(targetAddr + HOSTNAME_LEN, ".onion", 6);
+                        memcpy(chatcode, buf + 32, 32);
+                    }
+                }
+            }
+            else puts("Bad request: invalid size");
+
+            if (good) break;
         }
     }
 }
