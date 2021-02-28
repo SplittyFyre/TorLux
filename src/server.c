@@ -123,3 +123,9 @@ void listen_for_connect() {
         }
     }
 }
+
+void server_cleanup() {
+    if (sockfd != -1) {
+        close(sockfd);
+    }
+}

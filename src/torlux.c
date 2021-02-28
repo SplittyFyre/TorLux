@@ -1,6 +1,8 @@
 #include "torlux.h"
 
 #include "tool.h"
+#include "server.h"
+#include "ui.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,4 +40,31 @@ void parseToken(const char *token) {
         targetAddr[i - 64] = token[i];
     }
     memcpy(targetAddr + HOSTNAME_LEN, ".onion", 6);
+}
+
+void join() {
+
+}
+
+void initiate() {
+
+}
+
+void torlux_run(int mode, const char *token) {
+    if (mode) {
+        parseToken(token);
+    }
+
+    server_init();
+
+    if (mode) join();
+    else initiate();
+    
+    if (atomic_flag_test_and_set(&exitFlag)) {
+        server_cleanup();
+        puts("Received SIGINT, exiting");
+    }
+    else atomic_flag_clear(&exitFlag);
+
+    ui_init();
 }
