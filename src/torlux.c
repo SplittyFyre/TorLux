@@ -67,4 +67,7 @@ void torlux_run(int mode, const char *token) {
     else atomic_flag_clear(&exitFlag);
 
     ui_init();
+
+    pthread_create(&serverThread, NULL, server_run, NULL);
+    pthread_create(&senderThread, NULL, , NULL);
 }
