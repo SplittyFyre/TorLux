@@ -1,6 +1,9 @@
-#include <ncurses.h>
+#include "ui.h"
 
 #include "torlux.h"
+#include "sender.h"
+#include <ncurses.h>
+#include <string.h>
 
 static bool inited = false;
 static int sizey, sizex;
@@ -61,8 +64,43 @@ bool ui_update() {
     }
 
     if (c == KEY_BACKSPACE || c == KEY_DC || c == 127) {
-        
+        if (slen) slen--;
     }
+    else {
+        if (c == '\n') {
+            if (strcmp(s, "/exit") == 0) {
+                return false;
+            }
+
+            if (s[0] == '/') {
+                parseCommand();
+                slen = 0;
+            }
+
+            if (slen) {
+                senderEnqueueData(s, slen);
+
+                wattron(chat, COLOR_PAIR(USER_COLOUR));
+                wprintw(chat, "You: ");
+                wattroff(chat, COLOR_PAIR(USER_COLOUR));
+                wprintw(chat, "%s\n\n", s);
+
+                slen = 0;
+            }
+        }
+        else {
+            s[slen++] = c;
+            s[slen] = '\0';
+        }
+    }
+
+    wclear(input);
+    wprintw(input, ">>> %s", s);
+
+    wrefresh(chat);
+    wrefresh(input);
+
+    return true;
 }
 
 void ui_cleanup() {
@@ -71,4 +109,8 @@ void ui_cleanup() {
         delwin(input);
         endwin();
     }
+}
+
+void parseCommand() {
+    
 }

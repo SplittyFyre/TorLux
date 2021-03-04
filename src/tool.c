@@ -6,13 +6,9 @@
 #include <string.h>
 #include <stdarg.h>
 #include <sys/socket.h>
-
-
-static char discardbuf[4096];
-void read_discard(int sockfd) {
-    while (recv(sockfd, discardbuf, 4096, 0) > 0);
-}
-
+#include <unistd.h>
+#include <sys/stat.h>
+#include <pwd.h>
 
 int hcti(char c) {
     if (c >= '0' && c <= '9') return c - '0';
@@ -43,4 +39,45 @@ void csrng(char *dest, size_t s) {
     }
     fread(dest, 1, s, fin);
     fclose(fin);
+}
+
+
+
+void generateConfig() {
+    struct passwd *pw = getpwuid(getuid());
+
+    char dir[128], hsdir[128], torrcpath[128];
+    strcpy(dir, pw->pw_dir);
+    strcat(dir, "./torlux");
+    
+    strcpy(hsdir, dir);
+    strcat(hsdir, "/hs");
+
+    struct stat st;
+    if (stat(dir, &st) == 0) { // if dir already there
+        char cmd[128];
+        strcpy(cmd, "rm -r ");
+        strcat(cmd, dir);
+        puts(cmd);
+        //system(cmd);
+        return;
+    }
+
+    mkdir(dir, S_IRWXU);
+
+    strcpy(torrcpath, dir);
+    strcat(torrcpath, "/torrc");
+    FILE *fout = fopen(torrcpath, "w");
+    if (fout == NULL) {
+        puts("Failed to create torrc file");
+        exit(1);
+    }
+    fputs("SocksPort 9350\n\n", fout);
+    fprintf(fout, "HiddenServiceDir %s\n", hsdir);
+    fputs("HiddenServicePort 80 127.0.0.1:42069\n", fout);
+    fputs("\nHiddenServiceVersion 3\n", fout);
+    fputs("\n# feel free to add additional tor configurations:\n", fout);
+    fclose(fout);
+
+    mkdir(hsdir, S_IRWXU);
 }

@@ -17,4 +17,6 @@ extern char incoming[256];
 
 extern char myAddr[HOSTNAME_LEN_ONION], targetAddr[HOSTNAME_LEN_ONION];
 
+void torlux_run(int mode, const char *token);
+
 #endif /* INCLUDE_TORLUX */

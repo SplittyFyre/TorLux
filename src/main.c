@@ -62,12 +62,12 @@ int main(int argc, char **argv) {
         return 0;
     }
     else if (strcmp(mode, "generate") == 0) {
-        
+        generateConfig();
         puts("Generation complete");
     }
     else if (strcmp(mode, "initiate") == 0) {
         ensureData();
-        
+        torlux_run(0, NULL);
     }
     else if (strcmp(mode, "join") == 0) {
         ensureData();
@@ -75,6 +75,7 @@ int main(int argc, char **argv) {
             puts("Insufficient arguments, join needs token");
             return 0;
         }
+        torlux_run(1, argv[2]);
     }
     else {
         printf("Unknown mode: %s\n", mode);
