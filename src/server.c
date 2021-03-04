@@ -72,7 +72,7 @@ void* server_run(void *args) {
     return NULL;
 }
 
-void listen_for_connect() {
+void server_listen_for_connect() {
     struct pollfd pfd;
     pfd.fd = sockfd;
     pfd.events = POLLIN;

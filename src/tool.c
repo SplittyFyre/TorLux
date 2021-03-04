@@ -44,5 +44,3 @@ void csrng(char *dest, size_t s) {
     fread(dest, 1, s, fin);
     fclose(fin);
 }
-
-

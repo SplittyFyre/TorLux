@@ -1,5 +1,7 @@
 #include <ncurses.h>
 
+#include "torlux.h"
+
 static bool inited = false;
 static int sizey, sizex;
 static WINDOW *chat, *input;
@@ -45,6 +47,22 @@ void ui_init() {
 
 bool ui_update() {
 
+    pthread_mutex_lock(&chatMutex);
+    wattron(chat, COLOR_PAIR(PEER_COLOUR));
+    wprintw(chat, "Anon: ");
+    wattroff(chat, COLOR_PAIR(PEER_COLOUR));
+    wprintw(chat, "%s\n\n", incoming);
+    pthread_mutex_unlock(&chatMutex);
+
+    int c = getch();
+    if (c == ERR) {
+        wrefresh(chat); // for that ^
+        return true;
+    }
+
+    if (c == KEY_BACKSPACE || c == KEY_DC || c == 127) {
+        
+    }
 }
 
 void ui_cleanup() {

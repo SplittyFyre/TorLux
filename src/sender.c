@@ -71,3 +71,44 @@ void transmit(char *data, size_t size) {
     read_discard(sockfd); // trash data
     close(sockfd); // very important lol
 }
+
+
+
+
+
+static char tosend[1024];
+static size_t datalen;
+static pthread_cond_t cond;
+static pthread_mutex_t mutex;
+
+void senderEnqueueData(char *s, size_t len) {
+    datalen = len + 32;
+    memcpy(tosend, chatcode, 32);
+    pthread_mutex_lock(&mutex);
+    memcpy(tosend + 32, s, len);
+    pthread_cond_signal(&cond);
+    pthread_mutex_unlock(&mutex);
+}
+
+void* backgroundSender(void *args) {
+    
+    pthread_mutex_lock(&mutex);
+
+    while (!atomic_flag_test_and_set(&exitFlag)) {
+        atomic_flag_clear(&exitFlag);
+        pthread_cond_wait(&cond, &mutex);
+        if (atomic_flag_test_and_set(&exitFlag)) break;
+        atomic_flag_clear(&exitFlag);
+        transmit(tosend, datalen);
+    }
+
+    pthread_mutex_unlock(&mutex);
+
+    return NULL;
+}
+
+void senderPrepareJoin() {
+    pthread_mutex_lock(&mutex);
+    pthread_cond_signal(&cond);
+    pthread_mutex_unlock(&mutex);
+}

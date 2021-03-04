@@ -2,6 +2,7 @@
 
 #include "tool.h"
 #include "server.h"
+#include "sender.h"
 #include "ui.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,12 +43,29 @@ void parseToken(const char *token) {
     memcpy(targetAddr + HOSTNAME_LEN, ".onion", 6);
 }
 
-void join() {
+void initiate() {
+    csrng(initcode, 32);
 
+    puts("Send this token in a secure manner:\n");
+    for (int i = 0; i < 32; i++) printf("%02x", initcode[i]);
+    for (int i = 0; i < 56; i++) putchar(myAddr[i]);
+    puts("\n\nWaiting for connection...");
+
+    server_listen_for_connect();
+    if (atomic_flag_test_and_set(&exitFlag)) return;
+    else atomic_flag_clear(&exitFlag);
 }
 
-void initiate() {
+void join() {
+    csrng(chatcode, 32);
 
+    puts("Joining...");
+    
+    char msg[128];
+    memcpy(msg, initcode, 32);
+    memcpy(msg + 32, chatcode, 32);
+    memcpy(msg + 64, myAddr, HOSTNAME_LEN);
+    transmit(msg, 64 + HOSTNAME_LEN);
 }
 
 void torlux_run(int mode, const char *token) {
@@ -69,5 +87,19 @@ void torlux_run(int mode, const char *token) {
     ui_init();
 
     pthread_create(&serverThread, NULL, server_run, NULL);
-    pthread_create(&senderThread, NULL, , NULL);
+    pthread_create(&senderThread, NULL, backgroundSender, NULL);
+
+    while (!atomic_flag_test_and_set(&exitFlag)) {
+        atomic_flag_clear(&exitFlag);
+        if (!ui_update()) {
+            atomic_flag_test_and_set(&exitFlag);
+        }
+    }
+
+    pthread_join(serverThread, NULL);
+    senderPrepareJoin();
+    pthread_join(senderThread, NULL);
+
+    server_cleanup();
+    ui_cleanup();    
 }
