@@ -9,6 +9,7 @@
 #include <string.h>
 
 volatile atomic_flag exitFlag = ATOMIC_FLAG_INIT;
+volatile sig_atomic_t signalFlag = false;
 
 char initcode[32], chatcode[32];
 
@@ -89,10 +90,15 @@ void torlux_run(int mode, const char *token) {
     pthread_create(&serverThread, NULL, server_run, NULL);
     pthread_create(&senderThread, NULL, backgroundSender, NULL);
 
-    while (!atomic_flag_test_and_set(&exitFlag)) {
-        atomic_flag_clear(&exitFlag);
+    while (true) {
+        if (signalFlag) {
+            atomic_flag_test_and_set(&exitFlag);
+            break;
+        }
+
         if (!ui_update()) {
             atomic_flag_test_and_set(&exitFlag);
+            break;
         }
     }
 

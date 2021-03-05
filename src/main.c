@@ -42,7 +42,7 @@ void ensureData() {
 }
 
 void handleSigint(int i) {
-
+    signalFlag = true;
 }
 
 int main(int argc, char **argv) {

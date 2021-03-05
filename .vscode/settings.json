@@ -67,6 +67,7 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
-        "server.h": "c"
+        "server.h": "c",
+        "stdio.h": "c"
     }
 }

@@ -10,6 +10,7 @@
 #define TOKEN_LEN (32 * 2 + 56)
 
 extern volatile atomic_flag exitFlag;
+extern volatile sig_atomic_t signalFlag;
 extern char initcode[32], chatcode[32];
 
 extern pthread_mutex_t chatMutex;
