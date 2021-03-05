@@ -1,7 +1,10 @@
 #ifndef INCLUDE_TOOL
 #define INCLUDE_TOOL
 
+#include <stdlib.h>
 #include <stdbool.h>
+
+void read_discard(int sockfd);
 
 int hcti(char c);
 bool validb32(char c);

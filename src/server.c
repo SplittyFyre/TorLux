@@ -87,6 +87,11 @@ void server_listen_for_connect() {
         pfd.revents = 0;
         poll(&pfd, 1, 500);
 
+        if (signalFlag) {
+            atomic_flag_test_and_set(&exitFlag);
+            break;
+        }
+
         if (pfd.revents == POLLIN) {
             int tmpfd = accept(sockfd, NULL, NULL);
 
@@ -118,6 +123,10 @@ void server_listen_for_connect() {
                 }
             }
             else puts("Bad request: invalid size");
+
+            read_discard(tmpfd);
+            write(tmpfd, response, strlen(response));
+            close(tmpfd);
 
             if (good) break;
         }

@@ -1,7 +1,6 @@
 #include "tool.h"
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 #include <stdarg.h>
@@ -9,6 +8,11 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <pwd.h>
+
+static char discardbuf[4096];
+void read_discard(int sockfd) {
+    while (recv(sockfd, discardbuf, 4096, 0) > 0);
+}
 
 int hcti(char c) {
     if (c >= '0' && c <= '9') return c - '0';
