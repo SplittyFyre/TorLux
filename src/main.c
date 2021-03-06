@@ -38,7 +38,7 @@ void ensureData() {
         exit(0);
     }
 
-    puts(buf);
+    memcpy(myAddr, buf, HOSTNAME_LEN_ONION);
 }
 
 void handleSigint(int i) {

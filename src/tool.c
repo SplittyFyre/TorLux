@@ -52,7 +52,7 @@ void generateConfig() {
 
     char dir[128], hsdir[128], torrcpath[128];
     strcpy(dir, pw->pw_dir);
-    strcat(dir, "./torlux");
+    strcat(dir, "/.torlux");
     
     strcpy(hsdir, dir);
     strcat(hsdir, "/hs");
@@ -62,9 +62,7 @@ void generateConfig() {
         char cmd[128];
         strcpy(cmd, "rm -r ");
         strcat(cmd, dir);
-        puts(cmd);
-        //system(cmd);
-        return;
+        system(cmd);
     }
 
     mkdir(dir, S_IRWXU);

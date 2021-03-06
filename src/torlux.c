@@ -48,7 +48,7 @@ void initiate() {
     csrng(initcode, 32);
 
     puts("Send this token in a secure manner:\n");
-    for (int i = 0; i < 32; i++) printf("%02x", initcode[i]);
+    for (int i = 0; i < 32; i++) printf("%02x", (unsigned char) initcode[i]);
     for (int i = 0; i < 56; i++) putchar(myAddr[i]);
     puts("\n\nWaiting for connection...");
 
