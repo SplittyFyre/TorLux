@@ -61,7 +61,9 @@ void* server_run(void *args) {
                     incoming[ptr] = '\0';
                     pthread_mutex_unlock(&chatMutex);
 
-                    read_discard(tmpfd);
+                    while (recved == 256) {
+                        recved = recv(tmpfd, buf, 256, 0);
+                    }
                     write(tmpfd, response, strlen(response));
                 }
             }
@@ -125,7 +127,9 @@ void server_listen_for_connect() {
             }
             else puts("Bad request: invalid size");
             puts("gay");
-            read_discard(tmpfd);
+            while (recved == 256) {
+                recved = recv(tmpfd, buf, 256, 0);
+            }
             write(tmpfd, response, strlen(response));
             close(tmpfd);
             puts("sex");
