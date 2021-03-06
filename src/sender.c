@@ -89,7 +89,7 @@ void senderEnqueueData(char *s, size_t len) {
     pthread_cond_signal(&cond);
     pthread_mutex_unlock(&mutex);
 }
-
+#include <stdio.h>
 void* backgroundSender(void *args) {
     
     pthread_mutex_lock(&mutex);
@@ -100,6 +100,7 @@ void* backgroundSender(void *args) {
         if (atomic_flag_test_and_set(&exitFlag)) break;
         atomic_flag_clear(&exitFlag);
         transmit(tosend, datalen);
+        puts("sendth");
     }
 
     pthread_mutex_unlock(&mutex);

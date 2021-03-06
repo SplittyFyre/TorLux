@@ -78,6 +78,7 @@ bool ui_update() {
             if (s[0] == '/') {
                 parseCommand();
                 slen = 0;
+                s[0] = '\0';
             }
 
             if (slen) {
@@ -89,6 +90,7 @@ bool ui_update() {
                 wprintw(chat, "%s\n\n", s);
 
                 slen = 0;
+                s[0] = '\0';
             }
         }
         else {
