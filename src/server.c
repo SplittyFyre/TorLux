@@ -127,13 +127,12 @@ void server_listen_for_connect() {
                 }
             }
             else puts("Bad request: invalid size");
-            puts("gay");
+
             while (recved == 256) {
                 recved = recv(tmpfd, buf, 256, 0);
             }
             write(tmpfd, response, strlen(response));
             close(tmpfd);
-            puts("sex");
 
             if (good) break;
         }

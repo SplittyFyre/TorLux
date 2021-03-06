@@ -67,7 +67,7 @@ bool ui_update() {
     }
 
     if (c == KEY_BACKSPACE || c == KEY_DC || c == 127) {
-        if (slen) slen--;
+        if (slen) s[--slen] = '\0';
     }
     else {
         if (c == '\n') {
