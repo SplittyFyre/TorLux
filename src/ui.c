@@ -51,10 +51,13 @@ void ui_init() {
 bool ui_update() {
 
     pthread_mutex_lock(&chatMutex);
-    wattron(chat, COLOR_PAIR(PEER_COLOUR));
-    wprintw(chat, "Anon: ");
-    wattroff(chat, COLOR_PAIR(PEER_COLOUR));
-    wprintw(chat, "%s\n\n", incoming);
+    if (hasIncoming) {
+        wattron(chat, COLOR_PAIR(PEER_COLOUR));
+        wprintw(chat, "Anon: ");
+        wattroff(chat, COLOR_PAIR(PEER_COLOUR));
+        wprintw(chat, "%s\n\n", incoming);
+        hasIncoming = false;
+    }
     pthread_mutex_unlock(&chatMutex);
 
     int c = getch();
@@ -112,5 +115,5 @@ void ui_cleanup() {
 }
 
 void parseCommand() {
-    
+
 }

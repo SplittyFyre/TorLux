@@ -15,6 +15,7 @@ char initcode[32], chatcode[32];
 
 pthread_mutex_t chatMutex = PTHREAD_MUTEX_INITIALIZER;
 char incoming[256];
+bool hasIncoming = false;
 
 pthread_t senderThread, serverThread;
 

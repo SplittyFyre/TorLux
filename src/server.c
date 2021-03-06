@@ -59,6 +59,7 @@ void* server_run(void *args) {
                     pthread_mutex_lock(&chatMutex);
                     for (int i = 32; i < recved; i++) incoming[ptr++] = buf[i];
                     incoming[ptr] = '\0';
+                    hasIncoming = true;
                     pthread_mutex_unlock(&chatMutex);
 
                     while (recved == 256) {

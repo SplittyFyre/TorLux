@@ -2,6 +2,7 @@
 #define INCLUDE_TORLUX
 
 #include <signal.h>
+#include <stdbool.h>
 #include <stdatomic.h>
 #include <pthread.h>
 
@@ -15,6 +16,7 @@ extern char initcode[32], chatcode[32];
 
 extern pthread_mutex_t chatMutex;
 extern char incoming[256];
+extern bool hasIncoming;
 
 extern char myAddr[HOSTNAME_LEN_ONION], targetAddr[HOSTNAME_LEN_ONION];
 
