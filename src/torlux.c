@@ -25,14 +25,14 @@ void parseToken(const char *token) {
     if (len != TOKEN_LEN) {
         puts("Invalid token");
         exit(0);
-        for (int i = 0; i < 32; i++) {
-            int v1 = hcti(token[i * 2]), v2 = hcti(token[i * 2 + 1]);
-            if (v1 == -1 || v2 == -1) {
-                puts("Invalid token");
-                exit(0);
-            }
-            initcode[i] = v1 * 16 + v2;
+    }
+    for (int i = 0; i < 32; i++) {
+        int v1 = hcti(token[i * 2]), v2 = hcti(token[i * 2 + 1]);
+        if (v1 == -1 || v2 == -1) {
+            puts("Invalid token");
+            exit(0);
         }
+        initcode[i] = v1 * 16 + v2;
     }
     for (unsigned i = 64; i < len; i++) {
         if (!validb32(token[i])) {
