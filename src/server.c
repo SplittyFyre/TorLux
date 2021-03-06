@@ -96,6 +96,7 @@ void server_listen_for_connect() {
             int tmpfd = accept(sockfd, NULL, NULL);
 
             ssize_t recved = recv(tmpfd, buf, 256, 0);
+
             if (recved == 64 + HOSTNAME_LEN) {
                 good = true;
 
@@ -123,10 +124,11 @@ void server_listen_for_connect() {
                 }
             }
             else puts("Bad request: invalid size");
-
+            puts("gay");
             read_discard(tmpfd);
             write(tmpfd, response, strlen(response));
             close(tmpfd);
+            puts("sex");
 
             if (good) break;
         }

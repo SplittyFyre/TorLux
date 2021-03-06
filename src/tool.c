@@ -11,7 +11,7 @@
 
 static char discardbuf[4096];
 void read_discard(int sockfd) {
-    while (recv(sockfd, discardbuf, 4096, 0) > 0);
+    while (recv(sockfd, discardbuf, 4096, 0) == 4096);
 }
 
 int hcti(char c) {
